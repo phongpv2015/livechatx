@@ -1,0 +1,10 @@
+RewriteEngine on
+RewriteCond $1 !(index\.php|resources|fonts|css|robots\.txt)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule (.*)$ index.php/$1 [L,QSA]
+
+<FilesMatch ".(eot|ttf|otf|woff|html)">
+	Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
