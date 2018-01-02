@@ -41,8 +41,9 @@ class Chat extends CI_Controller {
 
     // Request từ ajax gửi đến function này sẽ bị treo cho đến khi function này thực hiện xong
     public function chatHeartbeat(){
-        $query = $this->mchat->chatHeartbeat($_SESSION['id']);
-var_dump($query); exit();
+        $_SESSION['id'] = 1;
+        $id = 1;
+        $query = $this->mchat->chatHeartbeat($id);
         $items = '';
 
         $chatBoxes = array();

@@ -23,46 +23,24 @@
             <tbody>
                 <tr style="background-color:#9EB0E9;  font-size:13px; font-weight:bold; color:#fff;">
                     <th>Status</th>
-                    <th>User Id</th>
                     <th>User Name</th>
                 </tr>
                                   
             <?php
             if( isset($listOfUsers) ) {
+                $status = [
+                    0 => 'Offline',
+                    1 => 'Online'
+                ];
                 foreach($listOfUsers as $key => $value) {
-            ?>
-                <tr style="background-color:#efefef;">
-                    <td>
-                        <?php 
-                        if( $value['status'] == 1 ) {
-                            echo 'Online';
-                        }else {
-                            echo 'Offline';
-                        }
-                        ?>
-                    </td>
-                    <td>
-                        <?php echo $value['id']; ?>
-                    </td>
-                    <td>
-                        <?php 
-                        if( $_SESSION['username'] == $value['username'] ) { 
-                        ?>
-                            <a href="#" style="text-decoration:none">
-                        <?php 
-                        } else { 
-                        ?>  
-                            <a href="javascript:void(0)" onClick="javascript:chatWith('<?php echo $value['username'] ?>');">
-                        <?php 
-                        } 
-                        ?>      
-                        <?php echo $value['username'] ?>
-                            </a>
-                    </td>
-                </tr>
-            <?php   
-                } // end foreach loop
-            } // end if condition
+                    $link = '<a href="#" style="text-decoration:none">';
+                    if( $_SESSION['username'] != $value['username'] ) {
+                        $link = '<a href="javascript:void(0)" onClick="javascript:chatWith(\''.$value['username'].'\','.$value['id'].')";>';
+                    }
+                    echo '<tr><td>'.$status[$value['status']].'</td><td>'.$link.$value['username'].'</td></tr>';
+                }
+
+            }
             ?>          
                 
             </tbody>

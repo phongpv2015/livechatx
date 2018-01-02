@@ -47,13 +47,13 @@
 	}
 
 
-	function chatWith(chatuser) {
-		createChatBox(chatuser);
+	function chatWith(chatuser,id) {
+		createChatBox(chatuser,id);
 		jQuery("#chatbox_"+chatuser+" .chatboxtextarea").focus();
 	}
 
 
-	function createChatBox(chatboxtitle,minimizeChatBox) {
+	function createChatBox(chatboxtitle,id,minimizeChatBox) {
 		if (jQuery("#chatbox_"+chatboxtitle).length > 0) {
 			if (jQuery("#chatbox_"+chatboxtitle).css('display') == 'none') {
 				jQuery("#chatbox_"+chatboxtitle).css('display','block');
@@ -68,9 +68,9 @@
 				.html('<div class="chatboxhead"><div class="chatboxtitle">'
 					+chatboxtitle
 					+'</div><div class="chatboxoptions"><a href="javascript:void(0)" onclick="javascript:toggleChatBoxGrowth(\''
-					+chatboxtitle+'\')">-</a> <a href="javascript:void(0)" onclick="javascript:closeChatBox(\''
-					+chatboxtitle+'\')">X</a></div><br clear="all"/></div><div class="chatboxcontent"></div><div class="chatboxinput"><textarea class="chatboxtextarea" onkeydown="javascript:return checkChatBoxInputKey(event,this,\''
-					+chatboxtitle+'\');"></textarea></div>')
+					+chatboxtitle+'\','+id+')">-</a> <a href="javascript:void(0)" onclick="javascript:closeChatBox(\''
+					+chatboxtitle+'\','+id+')">X</a></div><br clear="all"/></div><div class="chatboxcontent"></div><div class="chatboxinput"><textarea class="chatboxtextarea" onkeydown="javascript:return checkChatBoxInputKey(event,this,\''
+					+chatboxtitle+'\','+id+');"></textarea></div>')
 				.appendTo(jQuery( "body" ));
 				   
 		jQuery("#chatbox_"+chatboxtitle).css('bottom', '0px');
@@ -240,17 +240,17 @@
 	}
 
 
-	function closeChatBox(chatboxtitle) {
+	function closeChatBox(chatboxtitle,id) {
 		jQuery('#chatbox_'+chatboxtitle).css('display','none');
 		restructureChatBoxes();
 
-		jQuery.post(config.base_url + "chat/successChat?action=closechat", {chatbox: chatboxtitle} , function(data){	
+		jQuery.post(config.base_url + "chat/successChat?action=closechat", {chatbox: id} , function(data){	
 		});
 
 	}
 
 
-	function toggleChatBoxGrowth(chatboxtitle) {
+	function toggleChatBoxGrowth(chatboxtitle,id) {
 		if (jQuery('#chatbox_'+chatboxtitle+' .chatboxcontent').css('display') == 'none') {  
 			
 			var minimizedChatBoxes = new Array();
@@ -291,7 +291,7 @@
 	}
 
 
-	function checkChatBoxInputKey(event,chatboxtextarea,chatboxtitle) {
+	function checkChatBoxInputKey(event,chatboxtextarea,chatboxtitle,id) {
 		 
 		if(event.keyCode == 13 && event.shiftKey == 0)  {
 			message = jQuery(chatboxtextarea).val();
@@ -302,7 +302,7 @@
 			jQuery(chatboxtextarea).css('height','44px');
 			if (message != '') {
 				jQuery.post(config.base_url + "chat/successChat?action=sendchat"
-					, {to: chatboxtitle, message: message} 
+					, {to: id, message: message} 
 					, function(data){
 						message = message.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
 						jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")
