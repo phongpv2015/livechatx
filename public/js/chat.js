@@ -143,7 +143,9 @@
 	 
 			var blinkNumber = 0;
 			var titleChanged = 0;
-			for (x in newMessagesWin) {
+			var length = newMessagesWin.length;
+			var lengthMessage = newMessages.length;
+			for (var x = 0; x < length;x++) {
 				if (newMessagesWin[x] == true) {
 					++blinkNumber;
 					if (blinkNumber >= blinkOrder) {
@@ -162,12 +164,12 @@
 			}
 
 		} else {
-			for (x in newMessagesWin) {
+			for (var x = 0; x < length;x++) {
 				newMessagesWin[x] = false;
 			}
 		}
 
-		for (x in newMessages) {
+		for (var x = 0; x < lengthMessage;x++) {
 			if (newMessages[x] == true) {
 				if (chatboxFocus[x] == false) {
 					jQuery('#chatbox_'+x+' .chatboxhead').toggleClass('chatboxblink');
@@ -348,27 +350,27 @@
 	 			// console.log(data);
 				username = data.username;
 
-				jQuery.each(data.items, function(i,item){
-					if (item)	{ // fix strange ie bug
+				// jQuery.each(data.items, function(i,item){
+				// 	if (item)	{ // fix strange ie bug
 
-						chatboxtitle = item.f;
+				// 		chatboxtitle = item.f;
 
-						if (jQuery("#chatbox_"+chatboxtitle).length <= 0) {
-							createChatBox(chatboxtitle,1);
-						}
+				// 		if (jQuery("#chatbox_"+chatboxtitle).length <= 0) {
+				// 			createChatBox(chatboxtitle,1);
+				// 		}
 						
-						if (item.s == 1) {
-							item.f = username;
-						}
+				// 		if (item.s == 1) {
+				// 			item.f = username;
+				// 		}
 
-						if (item.s == 2) {
-							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+item.m+'</span></div>');
-						} else {
-							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+item.f+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+item.m+'</span></div>');
-						}
-					}
-				});
-			
+				// 		if (item.s == 2) {
+				// 			jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+item.m+'</span></div>');
+				// 		} else {
+				// 			jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+item.f+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+item.m+'</span></div>');
+				// 		}
+				// 	}
+				// });
+				console.log(data.items);
 				for (i=0;i<chatBoxes.length;i++) {
 					chatboxtitle = chatBoxes[i];
 					jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").scrollTop(jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")[0].scrollHeight);

@@ -38,7 +38,6 @@ class Chat extends CI_Controller {
         if ($_GET['action'] == "startchatsession") { $this->startChatSession(); } 
 
     }
-
     // Request từ ajax gửi đến function này sẽ bị treo cho đến khi function này thực hiện xong
     public function chatHeartbeat(){
         $_SESSION['id'] = 1;
