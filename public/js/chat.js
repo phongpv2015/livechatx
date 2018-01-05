@@ -309,7 +309,7 @@
 						message = message.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
 						jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")
 							.append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'
-								+username+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'
+								+'Me'+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'
 								+message+'</span></div>');
 						jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")
 							.scrollTop(jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")[0].scrollHeight);
@@ -347,7 +347,7 @@
 				action:'startchatsession'
 			},
 			success: function(data) {
-	 			// console.log(data);
+	 			console.log(data);
 				username = data.username;
 
 				// jQuery.each(data.items, function(i,item){

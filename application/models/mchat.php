@@ -51,15 +51,11 @@ class Mchat extends CI_Model {
     }
 
     // Lưu dữ liệu chat vào database
-    public function insertConversation($from,$to,$message){
+    public function insertConversation($data){
 
-        $data = array(
-            'id_user_from' => $from ,
-            'id_to' => $to,
-            'content' => $message 
-            );
         $this->db->set($data);        
         $this->db->insert('conversation');
+        return $this->db->insert_id();
     }
 
 

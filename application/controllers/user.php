@@ -7,7 +7,8 @@ class User extends CI_Controller {
 		parent::__construct();
 		$this->load->helper('url');
 		$this->load->model('muser');
-		session_start();
+		$this->load->library('redis');
+		$this->load->library('session');
 	}
 
 	public function index()	{
@@ -17,24 +18,22 @@ class User extends CI_Controller {
 	}
 	public function login()
 	{
-
-		if ( isset($_POST['username']) && isset($_POST['password']) ) {
-			$user = $_POST['username'];
-			$pass = $_POST['password'];
-			$user = $this->muser->login($user,$pass);
-			if ($user) {
-				$_SESSION['username'] = $user['username'];
-				$_SESSION['password'] = $user['password'];
-				$_SESSION['id'] = $user['id'];
-				redirect('chat');
-			}else{
-				die('Tên đăng nhập hoặc mật khẩu không đúng. Quay lại và thử nhập lại !');
-			}
+		$username = $this->input->post('username');
+		$password = $this->input->post('password');
+		$user = $this->muser->login($username,$password);
+		if ($user) {
+			$this->redis->hset("users:$user['id']",$user['id'],$user['username']);
+			$this->session->set_userdata('uid',$user['id']);
+			redirect('chat');
+		}else{
+			die('Tên đăng nhập hoặc mật khẩu không đúng. Quay lại và thử nhập lại !');
 		}
 	}
 	public function logout(){
-        $this->muser->logout($_SESSION['id']);
-		session_destroy();
+		$uid = $this->session->uid;
+        $this->muser->logout($uid);
+		$this->redis->hdel('users:$uid',$uid);
+		$this->session->unset_userdata('uid');
 		redirect('user');
 	}
 

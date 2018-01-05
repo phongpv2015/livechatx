@@ -13,7 +13,7 @@
     
 </head>
 <body>
-    <?php if ( isset($_SESSION['username'])) {
+    <?php if ( isset($_SESSION['id'])) {
         echo "<a href='http://www.livechatx.com/user/logout'>Logout</a>";
     } ?>
     <div id="container">
@@ -34,7 +34,7 @@
                 ];
                 foreach($listOfUsers as $key => $value) {
                     $link = '<a href="#" style="text-decoration:none">';
-                    if( $_SESSION['username'] != $value['username'] ) {
+                    if( $_SESSION['id'] != $value['id'] ) {
                         $link = '<a href="javascript:void(0)" onClick="javascript:chatWith(\''.$value['username'].'\','.$value['id'].')";>';
                     }
                     echo '<tr><td>'.$status[$value['status']].'</td><td>'.$link.$value['username'].'</td></tr>';
