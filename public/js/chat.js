@@ -18,7 +18,7 @@
 
 	jQuery(document).ready(function(){
 		originalTitle = document.title;
-		startChatSession();
+		// startChatSession();
 
 		jQuery([window, document]).blur(function(){
 			windowFocus = false;
@@ -47,8 +47,8 @@
 	}
 
 
-	function chatWith(chatuser,id) {
-		createChatBox(chatuser,id);
+	function chatWith(chatuser,chatWithUserId) {
+		createChatBox(chatuser,chatWithUserId);
 		jQuery("#chatbox_"+chatuser+" .chatboxtextarea").focus();
 	}
 
@@ -62,7 +62,7 @@
 			jQuery("#chatbox_"+chatboxtitle+" .chatboxtextarea").focus();
 			return;
 		}
-
+		startChatSession(id,chatboxtitle);
 		jQuery(" <div />" ).attr("id","chatbox_"+chatboxtitle)
 				.addClass("chatbox")
 				.html('<div class="chatboxhead"><div class="chatboxtitle">'
@@ -135,86 +135,85 @@
 
 	// Server trả về response ứng với request bị treo vừa được gửi đi (trong thời hạn time-out) và đóng nó lại
 	// Sau đó client sử dụng response đó để gửi 1 request long-lived mới
-	function chatHeartbeat(){
+	function chatHeartbeat(chatWithUserId,chatWithUser){
 
 		var itemsfound = 0;
+		chatboxtitle = chatWithUser;
 		
-		if (windowFocus == false) {
+		// if (windowFocus == false) {
 	 
-			var blinkNumber = 0;
-			var titleChanged = 0;
-			var length = newMessagesWin.length;
-			var lengthMessage = newMessages.length;
-			for (var x = 0; x < length;x++) {
-				if (newMessagesWin[x] == true) {
-					++blinkNumber;
-					if (blinkNumber >= blinkOrder) {
-						document.title = x+' nói...';
-						titleChanged = 1;
-						break;	
-					}
-				}
-			}
+		// 	var blinkNumber = 0;
+		// 	var titleChanged = 0;
+		// 	var length = newMessagesWin.length;
+		// 	var lengthMessage = newMessages.length;
+		// 	for (var x = 0; x < length;x++) {
+		// 		if (newMessagesWin[x] == true) {
+		// 			++blinkNumber;
+		// 			if (blinkNumber >= blinkOrder) {
+		// 				document.title = x+' nói...';
+		// 				titleChanged = 1;
+		// 				break;	
+		// 			}
+		// 		}
+		// 	}
 			
-			if (titleChanged == 0) {
-				document.title = originalTitle;
-				blinkOrder = 0;
-			} else {
-				++blinkOrder;
-			}
+		// 	if (titleChanged == 0) {
+		// 		document.title = originalTitle;
+		// 		blinkOrder = 0;
+		// 	} else {
+		// 		++blinkOrder;
+		// 	}
 
-		} else {
-			for (var x = 0; x < length;x++) {
-				newMessagesWin[x] = false;
-			}
-		}
+		// } else {
+		// 	for (var x = 0; x < length;x++) {
+		// 		newMessagesWin[x] = false;
+		// 	}
+		// }
 
-		for (var x = 0; x < lengthMessage;x++) {
-			if (newMessages[x] == true) {
-				if (chatboxFocus[x] == false) {
-					jQuery('#chatbox_'+x+' .chatboxhead').toggleClass('chatboxblink');
-				}
-			}
-		}
+		// for (var x = 0; x < lengthMessage;x++) {
+		// 	if (newMessages[x] == true) {
+		// 		if (chatboxFocus[x] == false) {
+		// 			jQuery('#chatbox_'+x+' .chatboxhead').toggleClass('chatboxblink');
+		// 		}
+		// 	}
+		// }
 		
 		jQuery.ajax({
-			url: config.base_url + "chat/successChat",
-			type:'get',
+			url: config.base_url + "chat/successChat?action=chatheartbeat",
+			type:'post',
 			cache: false,
 			dataType: "json",
 			data:{
-				action:'chatheartbeat'
+				uid: uid,
+				chatWithUserId:chatWithUserId
 			},
 			success: function(data) {
-				jQuery.each(data.items, function(i,item){
-					if (item)	{ // fix strange ie bug
-
-						chatboxtitle = item.f;
+				// chatboxtitle = chatWithUser;
+	 			length = data.length;
+				for(var i = 0;i < length; i++){
+					if (data[i])	{ // fix strange ie bug
 
 						if (jQuery("#chatbox_"+chatboxtitle).length <= 0) {
-							createChatBox(chatboxtitle);
-						}
-						if (jQuery("#chatbox_"+chatboxtitle).css('display') == 'none') {
-							jQuery("#chatbox_"+chatboxtitle).css('display','block');
-							restructureChatBoxes();
+							createChatBox(chatboxtitle,1);
 						}
 						
-						if (item.s == 1) {
-							item.f = username;
-						}
+						// if (data[i]. == 1) {
+						// 	data[i].f = username;
+						// }
+						// window.hash = data;
+						if (data[i][1] == uid) {
+							// console.log(data[i].from);
+							// console.log(data[i].content);
+							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+'Me'+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+data[i][5]+'</span></div>');
 
-						if (item.s == 2) {
-							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+item.m+'</span></div>');
+							// jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+data[i].content+'</span></div>');
 						} else {
-							newMessages[chatboxtitle] = true;
-							newMessagesWin[chatboxtitle] = true;
-							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+item.f+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+item.m+'</span></div>');
+							// console.log(data[i].from);							
+							// console.log(data[i].content);
+							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+chatWithUser+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+data[i][5]+'</span></div>');
 						}
-
-						jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").scrollTop(jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")[0].scrollHeight);
-						itemsfound += 1;
 					}
-				});
+				};
 
 				chatHeartbeatCount++;
 
@@ -236,7 +235,7 @@
 				// Thời hạn của request
 				// Thời hạn này chỉ có tác dụng 1 lần đối với request hiện tại
 				// Ở request tiếp theo chatHeartbeatTime có thể đã bị thay đổi
-				setTimeout('chatHeartbeat();',chatHeartbeatTime);
+				setTimeout(chatHeartbeat(chatWithUserId,chatboxtitle),chatHeartbeatTime);
 			}
 		});
 	}
@@ -337,47 +336,49 @@
 	}
 
 
-	function startChatSession(){  
+	function startChatSession(chatWithUserId,chatWithUser){  
+		chatboxtitle = chatWithUser;
 		jQuery.ajax({
-			url: config.base_url + "chat/successChat",
+			url: config.base_url + "chat/successChat?action=startchatsession",
 			cache: false,
-			type:'get',
+			type:'post',
 			dataType: "json",
 			data:{
-				action:'startchatsession'
+				uid: uid,
+				chatWithUserId:chatWithUserId
 			},
 			success: function(data) {
-	 			console.log(data);
-				username = data.username;
+	 			length = data.length;
+				for(var i = 0;i < length; i++){
+					if (data[i])	{ // fix strange ie bug
 
-				// jQuery.each(data.items, function(i,item){
-				// 	if (item)	{ // fix strange ie bug
-
-				// 		chatboxtitle = item.f;
-
-				// 		if (jQuery("#chatbox_"+chatboxtitle).length <= 0) {
-				// 			createChatBox(chatboxtitle,1);
-				// 		}
+						if (jQuery("#chatbox_"+chatboxtitle).length <= 0) {
+							createChatBox(chatboxtitle,1);
+						}
 						
-				// 		if (item.s == 1) {
-				// 			item.f = username;
-				// 		}
+						// if (data[i]. == 1) {
+						// 	data[i].f = username;
+						// }
+						if (data[i].from == uid) {
+							// console.log(data[i].from);
+							// console.log(data[i].content);
+							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+'Me'+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+data[i].content+'</span></div>');
 
-				// 		if (item.s == 2) {
-				// 			jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+item.m+'</span></div>');
-				// 		} else {
-				// 			jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+item.f+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+item.m+'</span></div>');
-				// 		}
-				// 	}
-				// });
-				console.log(data.items);
+							// jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxinfo">'+data[i].content+'</span></div>');
+						} else {
+							// console.log(data[i].from);							
+							// console.log(data[i].content);
+							jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").append('<div class="chatboxmessage"><span class="chatboxmessagefrom">'+data[i].chatWithUser+':&nbsp;&nbsp;</span><span class="chatboxmessagecontent">'+data[i].content+'</span></div>');
+						}
+					}
+				};
+				// console.log(data.data[i]s);
 				for (i=0;i<chatBoxes.length;i++) {
 					chatboxtitle = chatBoxes[i];
 					jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").scrollTop(jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")[0].scrollHeight);
 					setTimeout('jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent").scrollTop(jQuery("#chatbox_"+chatboxtitle+" .chatboxcontent")[0].scrollHeight);', 100); // yet another strange ie bug
-				}
-		
-				setTimeout('chatHeartbeat();',chatHeartbeatTime);
+				}		
+				setTimeout(chatHeartbeat(chatWithUserId,chatboxtitle),chatHeartbeatTime);
 			}
 		});
 	}

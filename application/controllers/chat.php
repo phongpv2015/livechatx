@@ -41,7 +41,6 @@ class Chat extends CI_Controller {
     }
     // Được gọi tới trong chat.js
     public function successChat(){
-        // echo($_GET['action']); exit();
         if ($_GET['action'] == "chatheartbeat") { $this->chatHeartbeat(); } 
         if ($_GET['action'] == "sendchat") { $this->sendChat(); } 
         if ($_GET['action'] == "closechat") { $this->closeChat(); } 
@@ -50,59 +49,30 @@ class Chat extends CI_Controller {
     }
     // Request từ ajax gửi đến function này sẽ bị treo cho đến khi function này thực hiện xong
     public function chatHeartbeat(){
-        $_SESSION['id'] = 1;
-        $id = 1;
-        $query = $this->mchat->chatHeartbeat($id);
-        $items = '';
+        $uid = $this->input->post('uid');        
+        $chatWithId = $this->input->post('chatWithUserId');
 
-        $chatBoxes = array();
+        $items = [];
+        $listConversation_id = $this->redis->lrange($uid.':listConversation:'.$chatWithId,0,-1);
+        if ($listConversation_id) {
+            $i = 0;
+            foreach ($listConversation_id as $value) {
+                $items[$i] = $this->redis->hgetall("conversation:$value");
+                $this->redis->hdel("conversation:$value");
+                $i++;
+            }
+            $this->redis->ltrim($uid.':listConversation:'.$chatWithId,-1,0);
+            $this->redis->del($uid.':listConversation:'.$chatWithId);
+            // Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
+            $this->mchat->updateConversation($uid);
+        }       
+
+        // if ( $items != '' ) {
+        //     $items = substr($items, 0, -1);
+        // }
         
-        if ( !empty($query) ) {
-            while ( $chat = $query) {
-                
-                unset($_SESSION['tsChatBoxes'][$chat['username']]);
-                $_SESSION['openChatBoxes'][$chat['username']] = $chat['time'];
-            } // end while line 69
-
-            if (!empty($_SESSION['openChatBoxes'])) {
-                foreach ($_SESSION['openChatBoxes'] as $chatbox => $time) {
-                    if (!isset($_SESSION['tsChatBoxes'][$chatbox])) {
-                        $now = time()-strtotime($time);
-                        $time = date('g:iA M dS', strtotime($time));
-
-                        $message = "Gửi lúc $time";
-                        if ($now > 180) {
-                            
-                            if (!isset($_SESSION['chatHistory'][$chatbox])) {
-                                $_SESSION['chatHistory'][$chatbox] = '';
-                            }
-
-                            
-                            $_SESSION['tsChatBoxes'][$chatbox] = 1;
-
-                        } 
-                    } 
-                } 
-            } 
-
-        }
-        
-        // Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
-        $this->mchat->updateConversation();
-
-        if ( $items != '' ) {
-            $items = substr($items, 0, -1);
-        }
-        
-        header('Content-type: application/json');
-        ?>
-        {
-            "items": [ 
-                <?php echo $items;?> 
-            ]
-        }
-        <?php
-
+        $result = json_encode($items);
+        echo($result);
         exit(0);
     }
 
@@ -118,18 +88,11 @@ class Chat extends CI_Controller {
     }
 
     public function startChatSession() {
+        $uid = $this->input->post('uid');        
+        $chatWithId = $this->input->post('chatWithUserId');
+
+        $items = $this->mchat->chatWith($uid,$chatWithId);
         
-        $items = '';
-
-        if (!empty($_SESSION['openChatBoxes'])) {
-            foreach ($_SESSION['openChatBoxes'] as $chatbox => $void) {
-                $items .= $this->chatBoxSession($chatbox);
-            }
-        }
-
-        if ($items != '') {
-            $items = substr($items, 0, -1);
-        }
         $result = json_encode($items);
         header('Content-Type: application/json');
         echo($result);
@@ -140,7 +103,7 @@ class Chat extends CI_Controller {
         $from = $this->session->userdata('uid'); 
         $to = $this->input->post('to');
         $message = $this->input->post('message');        
-        $messagesan = $this->sanitize($_POST['message']);
+        $messagesan = $this->sanitize($message);
         $data = array(
             'id_user_from' => $from ,
             'id_to' => $to,
@@ -148,15 +111,16 @@ class Chat extends CI_Controller {
             'time' =>  date('Y-m-d H:i:s', time()),
             'type' =>0
             );
-        $conversation_id = $this->mchat->insertConversation($data);
-        $this->redis->hmset("conversation:$from",$data);
+        $conversation_id = $this->mchat->insertConversation($data);        
+        $this->redis->hmset("conversation:$conversation_id",$data);
+        $this->redis->lpush($from.":listConversation:$to",$conversation_id);
         echo $conversation_id;
         exit(0);
     }
 
     public function closeChat() {
 
-        // $this->redis->del()        
+        unset($_SESSION['openChatBoxes'][$_POST['chatbox']]);        
         echo "1";
         exit(0);
     }

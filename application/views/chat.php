@@ -6,9 +6,11 @@
     <title>Demo Live Chat</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="<?php echo base_url() ?>/public/js/chat.js"></script>
     <script src="<?php echo base_url() ?>/public/js/config.js"></script>
-  
+    <script src="<?php echo base_url() ?>/public/js/chat.js"></script>
+    <script type="text/javascript">
+        var uid=<?php echo $this->session->userdata('uid');?>
+    </script>
     <link type="text/css" rel="stylesheet" media="all" href="<?php echo base_url() ?>/public/css/chat.css" />
     
 </head>
@@ -34,7 +36,7 @@
                 ];
                 foreach($listOfUsers as $key => $value) {
                     $link = '<a href="#" style="text-decoration:none">';
-                    if( $_SESSION['id'] != $value['id'] ) {
+                    if( $_SESSION['uid'] != $value['id'] ) {
                         $link = '<a href="javascript:void(0)" onClick="javascript:chatWith(\''.$value['username'].'\','.$value['id'].')";>';
                     }
                     echo '<tr><td>'.$status[$value['status']].'</td><td>'.$link.$value['username'].'</td></tr>';

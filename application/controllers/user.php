@@ -22,7 +22,8 @@ class User extends CI_Controller {
 		$password = $this->input->post('password');
 		$user = $this->muser->login($username,$password);
 		if ($user) {
-			$this->redis->hset("users:$user['id']",$user['id'],$user['username']);
+			$uid = $user['id'];
+			$this->redis->hset("users:$uid",$user['id'],$user['username']);
 			$this->session->set_userdata('uid',$user['id']);
 			redirect('chat');
 		}else{

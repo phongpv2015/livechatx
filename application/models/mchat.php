@@ -7,14 +7,6 @@ class Mchat extends CI_Model {
      
     function __construct() {
         parent::__construct();
-        $this->load->database();
-        if (!isset($_SESSION['chatHistory'])) {
-            $_SESSION['chatHistory'] = array(); 
-        }
-
-        if (!isset($_SESSION['openChatBoxes'])) {
-            $_SESSION['openChatBoxes'] = array();   
-        }
     }
 
     /**
@@ -37,6 +29,27 @@ class Mchat extends CI_Model {
 
     } // end function
 
+    public function chatWith($uid,$chatUserId,$offset = 0)
+    {
+        $sql = "  SELECT  `user`.`username` as chatWithUser, 
+                            `conversation`.`id_user_from` as `from`, 
+                            `conversation`.`id_to` as `to`, 
+                            `conversation`.`time` , 
+                            `conversation`.`type` , 
+                            `conversation`.`content` 
+                    FROM    `conversation` 
+                    LEFT JOIN `user` 
+                    ON        `user`.`id` = `conversation`.`id_user_from` 
+                    WHERE     `conversation`.`id_to` = '".$uid."' 
+                    AND     `conversation`.`id_user_from` = '".$chatUserId."' 
+                    OR      `conversation`.`id_to` = '".$chatUserId."'
+                    AND     `conversation`.`id_user_from` = '".$uid."' 
+                    ORDER BY  `conversation`.`id` ASC 
+                    LIMIT $offset, 50
+                ;";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
     /**
      * Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
      * '0' : chưa đọc ; '1' : đã đọc
