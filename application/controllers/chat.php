@@ -53,16 +53,16 @@ class Chat extends CI_Controller {
         $chatWithId = $this->input->post('chatWithUserId');
 
         $items = [];
-        $listConversation_id = $this->redis->lrange($uid.':listConversation:'.$chatWithId,0,-1);
+        $listConversation_id = $this->redis->lrange("listConversation:$chatWithId:$uid",0,-1);
         if ($listConversation_id) {
             $i = 0;
             foreach ($listConversation_id as $value) {
                 $items[$i] = $this->redis->hgetall("conversation:$value");
-                $this->redis->hdel("conversation:$value");
+                $this->redis->del("conversation:$value");
                 $i++;
             }
-            $this->redis->ltrim($uid.':listConversation:'.$chatWithId,-1,0);
-            $this->redis->del($uid.':listConversation:'.$chatWithId);
+            $this->redis->ltrim("listConversation:$chatWithId:$uid",-1,0);
+            $this->redis->del("listConversation:$chatWithId:$uid");
             // Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
             $this->mchat->updateConversation($uid);
         }       
@@ -113,7 +113,7 @@ class Chat extends CI_Controller {
             );
         $conversation_id = $this->mchat->insertConversation($data);        
         $this->redis->hmset("conversation:$conversation_id",$data);
-        $this->redis->lpush($from.":listConversation:$to",$conversation_id);
+        $this->redis->lpush("listConversation:$from:$to",$conversation_id);
         echo $conversation_id;
         exit(0);
     }
