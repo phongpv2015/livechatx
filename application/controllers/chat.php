@@ -94,7 +94,6 @@ class Chat extends CI_Controller {
         $items = $this->mchat->chatWith($uid,$chatWithId);
         
         $result = json_encode($items);
-        header('Content-Type: application/json');
         echo($result);
         
     }
