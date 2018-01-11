@@ -12,7 +12,10 @@ class User extends CI_Controller {
 	}
 
 	public function index()	{
-
+		$uid = $this->session->userdata('uid');
+        if(!empty($uid)) {
+            redirect('chat');
+        }
 		$this->load->view('user');
 
 	}

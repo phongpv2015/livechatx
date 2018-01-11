@@ -39,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |  $autoload['packages'] = array(APPPATH.'third_party', '/usr/local/shared');
 |
 */
-$autoload['packages'] = array(APPPATH.'vendor/autoload.php');
+$autoload['packages'] = array(APPPATH.'third_party/vendor/autoload.php');
 
 /*
 | -------------------------------------------------------------------

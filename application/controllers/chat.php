@@ -1,5 +1,13 @@
 <?php
 
+// How often to poll, in microseconds (1,000,000 μs equals 1 s)
+define('MESSAGE_POLL_MICROSECONDS', 500000);
+ 
+// How long to keep the Long Poll open, in seconds
+define('MESSAGE_TIMEOUT_SECONDS', 10);
+ 
+// Timeout padding in seconds, to avoid a premature timeout in case the last call in the loop is taking a while
+define('MESSAGE_TIMEOUT_SECONDS_BUFFER', 5);
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
@@ -53,20 +61,28 @@ class Chat extends CI_Controller {
         $chatWithId = $this->input->post('chatWithUserId');
 
         $items = [];
-        $listConversation_id = $this->redis->lrange("listConversation:$chatWithId:$uid",0,-1);
-        if ($listConversation_id) {
-            $i = 0;
-            foreach ($listConversation_id as $value) {
-                $items[$i] = $this->redis->hgetall("conversation:$value");
-                $this->redis->del("conversation:$value");
-                $i++;
+        $counter = time();
+        while(true){
+            $listConversation_id = $this->redis->lrange("listConversation:$chatWithId:$uid",0,-1);
+            if ($listConversation_id) {
+                $i = 0;
+                foreach ($listConversation_id as $value) {
+                    $items[$i] = $this->redis->hgetall("conversation:$value");
+                    $this->redis->del("conversation:$value");
+                    $i++;
+                }
+                $this->redis->ltrim("listConversation:$chatWithId:$uid",-1,0);
+                $this->redis->del("listConversation:$chatWithId:$uid");
+                // Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
+                $this->mchat->updateConversation($uid);
+                break;
             }
-            $this->redis->ltrim("listConversation:$chatWithId:$uid",-1,0);
-            $this->redis->del("listConversation:$chatWithId:$uid");
-            // Thực hiện update trạng thái từ 'chưa đọc' -> 'đã đọc' tin nhắn
-            $this->mchat->updateConversation($uid);
-        }       
-
+            $timeout = time() - $counter;
+            if ($timeout == 20) {
+                break;
+            }            
+        }
+        
         // if ( $items != '' ) {
         //     $items = substr($items, 0, -1);
         // }

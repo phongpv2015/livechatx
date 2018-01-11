@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     
-    <title>Demo Live Chat</title>
+    <title>Live Chat</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="<?php echo base_url() ?>/public/js/config.js"></script>

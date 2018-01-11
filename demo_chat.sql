@@ -63,3 +63,17 @@ INSERT INTO `user` (`id`, `username`, `password`, `status`) VALUES
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post`
+--
+
+CREATE TABLE IF NOT EXISTS `post`(
+  `pid` int(11) PRIMARY KEY AUTO_INCREMENT,
+  `title` varchar(50) not null,
+  `body` text not null,
+  `status` int(1),
+  `authorId` int(11)
+)ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3;

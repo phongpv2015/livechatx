@@ -36,6 +36,10 @@ class ComposerStaticInitbfc5b6ee2e70b4f2000586b8f804a6e6
         array (
             'Psr\\Http\\Message\\' => 17,
         ),
+        'L' => 
+        array (
+            'Livechat\\' => 9,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -94,6 +98,10 @@ class ComposerStaticInitbfc5b6ee2e70b4f2000586b8f804a6e6
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Livechat\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/application',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (

@@ -1,4 +1,9 @@
 {
+	"autoload": {
+        "psr-4": {
+            "Livechat\\": "application"
+        }
+    },
     "require": {
         "cboden/ratchet": "^0.4.1"
     }
