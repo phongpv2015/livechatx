@@ -34,7 +34,10 @@ class Chat extends CI_Controller {
 
         // Lấy ra danh sách tất cả các user
         $outputData['listOfUsers'] = $this->muser->getUsers();
-        $this->load->view('chat',$outputData);
+        $outputData['view'] = 'chat';
+        $outputData['js'] = 'chat.js';
+        $outputData['css'] = 'chat.css';
+        $this->load->view('layout/index',$outputData);
     }
     public function redisHash()
     {
